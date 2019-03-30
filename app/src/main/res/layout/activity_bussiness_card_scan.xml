@@ -37,7 +37,7 @@
                         android:layout_height="wrap_content" />
                     <EditText
                         android:id="@+id/resultEt"
-                        android:hint="Click + button to add image"
+                        android:hint=""
                         android:autoLink="all"
                         android:padding="5dp"
                         android:textColor="#000"

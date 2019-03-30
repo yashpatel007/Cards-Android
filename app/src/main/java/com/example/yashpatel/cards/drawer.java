@@ -1,5 +1,6 @@
 package com.example.yashpatel.cards;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -101,5 +102,11 @@ public class drawer extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    public void startBCardScan(View v){
+        Intent i = new Intent(this,bussinessCardScan.class);
+        startActivity(i);
     }
 }

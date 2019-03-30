@@ -6,18 +6,30 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.sql.SQLTransactionRollbackException;
 
@@ -42,6 +54,9 @@ public class bussinessCardScan extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bussiness_card_scan);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setSubtitle("click Image icon to add image");
+
         mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.imageIv);
 
@@ -55,17 +70,14 @@ public class bussinessCardScan extends AppCompatActivity {
     }
 
     // action bar menu
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // inflate items
         getMenuInflater().inflate(R.menu.menu_main,menu);
         return true;
     }
+
     // handel actionbar item clicks here
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -171,6 +183,105 @@ public class bussinessCardScan extends AppCompatActivity {
     }
 
     // handle permission result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+        case CAMERA_REQUEST_CODE:
+          if(grantResults.length > 0){
+              boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+              boolean writeStorageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+              if(cameraAccepted && writeStorageAccepted){
+                  pickCamera();
+              }
+              else {Toast.makeText(this,"permission denied",Toast.LENGTH_SHORT).show();}
+          }break;
+
+          case STORAGE_REQUEST_CODE:
+
+              if(grantResults.length > 0){
+                  boolean writeStorageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                  if( writeStorageAccepted){
+                      pickGallery();
+                  }
+                  else {Toast.makeText(this,"permission denied",Toast.LENGTH_SHORT).show();}
+              }break;
+
+    }
+
+    }
+
+    // handle the image result
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode == RESULT_OK){
+            if(requestCode == IMAGE_PICK_GALLERY_CODE){
+                // got image from gallery now corp it
+
+                CropImage.activity(data.getData())
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this);
+                CropImage.activity(image_uri)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this);
+
+            }
+            if(requestCode == IMAGE_PICK_CAMERA_CODE){
+                // got image from camera now corp it
+
+                CropImage.activity(image_uri)
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .start(this);
 
 
-}
+            }
+
+        }
+        // get cropped image
+        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+
+            if( resultCode == RESULT_OK){
+
+                Uri resultUri = result.getUri();// get image uri
+                // set Image to image view
+                mPreviewIv.setImageURI(resultUri);
+
+                // get drawable bitmap for text recognization
+                BitmapDrawable bitmapDrawable = (BitmapDrawable)mPreviewIv.getDrawable();
+                Bitmap bitmap = bitmapDrawable.getBitmap();
+
+                TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
+                if(!recognizer.isOperational()){
+                Toast.makeText(this,"Error",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+                    SparseArray<TextBlock> items = recognizer.detect(frame);
+                    StringBuilder sb = new StringBuilder();
+                    // get text from sb untill there is no text
+                    for(int i =0; i<items.size();i++){
+                        TextBlock myItem = items.valueAt(i);
+                        sb.append(myItem.getValue());
+                        sb.append("\n");
+
+                    }
+                    // set the text to edit text
+                    mResultEt.setText(sb.toString());
+                }
+
+            }
+            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                // if there is any error show it
+               Exception error = result.getError();
+               Toast.makeText(this,""+error,Toast.LENGTH_SHORT).show();
+            }
+
+
+        }
+
+
+    }
+
+
+}//class ends
