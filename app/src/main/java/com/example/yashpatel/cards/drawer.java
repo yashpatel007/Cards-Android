@@ -87,7 +87,14 @@ public class drawer extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
+            Intent i = new Intent(this,bussinessCardScan.class);
+            startActivity(i);
+
+
         } else if (id == R.id.nav_gallery) {
+          Intent j = new Intent(this,nfcRfidScan.class);
+          startActivity(j);
+
 
         } else if (id == R.id.nav_slideshow) {
 

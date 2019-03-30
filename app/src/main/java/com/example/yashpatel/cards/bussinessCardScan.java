@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,8 +22,11 @@ import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.Frame;
@@ -32,6 +36,11 @@ import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.sql.SQLTransactionRollbackException;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class bussinessCardScan extends AppCompatActivity {
 
@@ -40,6 +49,10 @@ public class bussinessCardScan extends AppCompatActivity {
     ImageView mPreviewIv;
 
 
+    TextView displayText;
+    TextView displayEmail;
+    TextView displayPhone;
+    TextView displayName;
     private static final int CAMERA_REQUEST_CODE = 200;
     private static final int STORAGE_REQUEST_CODE = 400;
     private static final int IMAGE_PICK_GALLERY_CODE = 1000;
@@ -56,18 +69,44 @@ public class bussinessCardScan extends AppCompatActivity {
         setContentView(R.layout.activity_bussiness_card_scan);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setSubtitle("click Image icon to add image");
+        Button openContacts = (Button) findViewById(R.id.submitButton);
 
         mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.imageIv);
 
 
+        // extracted info
+        displayName = (TextView) findViewById(R.id.textView5);
+        displayPhone = (TextView) findViewById(R.id.textView4);
+        displayEmail = (TextView) findViewById(R.id.textView3);
+
+
+
         // camera permission
-        cameraPermission = new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         // storage permission
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
 
-    }
+        // submit button code
+        openContacts.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                extractName(mResultEt.getText().toString());
+                extractEmail(mResultEt.getText().toString());
+                extractPhone(mResultEt.getText().toString());
+
+
+                addToContacts();
+            }
+        });
+
+
+
+
+    }// on create ends
+
 
     // action bar menu
     @Override
@@ -282,6 +321,82 @@ public class bussinessCardScan extends AppCompatActivity {
 
 
     }
+
+    // parse the content
+    private void addToContacts(){
+
+        // Creates a new Intent to insert a contact
+        Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+        // Sets the MIME type to match the Contacts Provider
+        intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+
+        //Checks if we have the name, email and phone number...
+        if(displayName.getText().length() > 0 && ( displayPhone.getText().length() > 0 || displayEmail.getText().length() > 0 )){
+            //Adds the name...
+            intent.putExtra(ContactsContract.Intents.Insert.NAME, displayName.getText());
+
+            //Adds the email...
+            intent.putExtra(ContactsContract.Intents.Insert.EMAIL, displayEmail.getText());
+            //Adds the email as Work Email
+            intent .putExtra(ContactsContract.Intents.Insert.EMAIL_TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK);
+
+            //Adds the phone number...
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE, displayPhone.getText());
+            //Adds the phone number as Work Phone
+            intent.putExtra(ContactsContract.Intents.Insert.PHONE_TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK);
+
+            //starting the activity...
+            startActivity(intent);
+        }else{
+            Toast.makeText(getApplicationContext(), "No information to add to contacts!", Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    public void extractName(String str){
+        System.out.println("Getting the Name");
+        final String NAME_REGEX = "^([A-Z]([a-z]*|\\.) *){1,2}([A-Z][a-z]+-?)+$";
+        Pattern p = Pattern.compile(NAME_REGEX, Pattern.MULTILINE);
+        Matcher m =  p.matcher(str);
+        if(m.find()){
+            System.out.println(m.group());
+            displayName.setText(m.group());
+        }
+    }
+
+    public void extractEmail(String str) {
+        System.out.println("Getting the email");
+        final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+        Pattern p = Pattern.compile(EMAIL_REGEX, Pattern.MULTILINE);
+        Matcher m = p.matcher(str);   // get a matcher object
+        if(m.find()){
+            System.out.println(m.group());
+            displayEmail.setText(m.group());
+        }
+    }
+
+    public void extractPhone(String str){
+        System.out.println("Getting Phone Number");
+        final String PHONE_REGEX="(?:^|\\D)(\\d{3})[)\\-. ]*?(\\d{3})[\\-. ]*?(\\d{4})(?:$|\\D)";
+        Pattern p = Pattern.compile(PHONE_REGEX, Pattern.MULTILINE);
+        Matcher m = p.matcher(str);   // get a matcher object
+        if(m.find()){
+            System.out.println(m.group());
+            displayPhone.setText(m.group());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 }//class ends

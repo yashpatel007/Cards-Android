@@ -29,14 +29,11 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-
     // image corp liberary
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.+'
 
-
     // image to text google liberary
     implementation 'com.google.android.gms:play-services-vision:16.2.0'
-
 
 
 }
