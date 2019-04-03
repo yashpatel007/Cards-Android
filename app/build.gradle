@@ -37,5 +37,8 @@ dependencies {
     // image to text google liberary
     implementation 'com.google.android.gms:play-services-vision:16.2.0'
 
+    // library for credit card fourm
+    implementation 'com.craftman.cardform:cardform:0.0.2'
+
 
 }

@@ -107,6 +107,9 @@ public class drawer extends AppCompatActivity
 
         } else if (id == R.id.nav_manage) {
 
+            Intent l = new Intent(drawer.this,creditCard.class);
+            startActivity(l);
+
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {

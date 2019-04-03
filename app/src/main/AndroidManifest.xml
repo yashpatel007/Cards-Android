@@ -35,7 +35,8 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".nfcRfidScan" />
         <activity android:name=".barscan" />
-        <activity android:name=".scanCode"></activity>
+        <activity android:name=".scanCode" />
+        <activity android:name=".creditCard"></activity>
     </application>
 
 </manifest>
