@@ -6,19 +6,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camera"
-            android:icon="@mipmap/bcard"
+            android:icon="@drawable/bussiness"
             android:title="Bussiness Cards" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@mipmap/rfid"
+            android:icon="@drawable/rfidcard"
             android:title="NFC/RFID Cards" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@mipmap/barcard"
+            android:icon="@drawable/barcode"
             android:title="Bar/QR Code" />
         <item
             android:id="@+id/nav_manage"
-            android:icon="@mipmap/creditcard"
+            android:icon="@drawable/debit"
             android:title="Credit/Debit Card" />
     </group>
 

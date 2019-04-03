@@ -14,25 +14,27 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="74dp"
-        android:layout_height="74dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:contentDescription="@string/nav_header_desc"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@drawable/cards" />
+        android:paddingTop="12dp"
+        app:srcCompat="@drawable/cards"
+        android:src="@drawable/cards"
+        />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="3dp"
+        android:paddingTop="7dp"
         android:text="CARDS"
-        android:textSize="18sp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/textView"
-        android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="by YZ applications" />
+        android:text="by YZ applications"
+        android:textSize="14sp" />
 
 </LinearLayout>

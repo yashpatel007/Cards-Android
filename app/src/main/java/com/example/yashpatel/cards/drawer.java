@@ -102,6 +102,9 @@ public class drawer extends AppCompatActivity
 
         } else if (id == R.id.nav_slideshow) {
 
+            Intent k = new Intent(this, barscan.class);
+            startActivity(k);
+
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
